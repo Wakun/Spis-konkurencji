@@ -3,8 +3,9 @@
 import requests
 from bs4 import BeautifulSoup
 import time
-import xlwt  # zapis dla spisu konkurencji
-# import openpyxl   # zapis dla DG3 !!! może użyć CSV?!!!
+# import xlwt
+import openpyxl
+import numpy as np
 from url_dict import RTV_url_dict, AGD_url_dict, AGD_zabudowa_url_dict, AGD_male_url_dict, Komputery_url_dict, \
     Gry_i_konsole_url_dict, Foto_i_kamery_url_dict, Telefony_i_GPS_url_dict   # słowniki do adresów stron
 
@@ -14,6 +15,12 @@ dict_games = {"gry-pc": "PC", "gry-playstation-4": "PS4", "gry-xbox-one": "X1", 
 prod_temp = []  # tymczasowa lista produktów
 ceny_temp = []  # tymczasowa lista cen
 param_temp = []  # tymczasowa lista parametrów
+
+# utworzenie dictionary z pliku .csv
+'''lines = np.genfromtxt("csvtest.csv", delimiter=";", dtype=None)
+compdict = dict()
+for i in range(len(lines)):
+    compdict[lines[i][0]] = lines[i][1]'''
 
 
 def nazwy_produktow(max_pages, cat):
@@ -66,7 +73,7 @@ def parametry_produktow(max_pages, cat):
 
 
 def make_param_temp(nazwy):
-    # utworzenie listy nazw produktów z parametrami !!!chyba nawet nieużywane w tej chwili!!!
+    # utworzenie listy nazw produktów z parametrami
     params = [prod.encode('utf-8') for prod in nazwy]
     return dict.fromkeys(params, [])
 
@@ -113,7 +120,7 @@ def pricesynchro(cat):
 
 
 def param_synchro(cat):
-    # synchronizacja parametrów !!!nie działa póki co!!!, !!! prawdopodobnie zrobi się to w parametry_produktów()
+    # synchronizacja parametrów !!nie działa
 
     sync_lst = []
     ilosc_prod = 0
@@ -134,7 +141,7 @@ def param_synchro(cat):
 def kategoria():
     # pobranie kategorii do spisu konkurencji z url_dict
 
-    cat = raw_input("Wpisz kategorię do spisania: ")
+    cat = input("Wpisz kategorię do spisania: ")
 
     if cat in RTV_url_dict:
         cat = RTV_url_dict[cat]
@@ -158,31 +165,31 @@ def kategoria():
 def printcat():
     # wyświetlenie wszystkich możliwych kategorii do spisania
 
-    print "Kategorie: "
-    print "\033[93m" + "\tRTV: " + "\033[0m"
+    print("Kategorie: ")
+    print("\033[93m" + "\tRTV: " + "\033[0m")
     for cat in RTV_url_dict:
-        print "\t\t-" + cat
-    print "\033[93m" + "\tAGD: " + "\033[0m"
+        print("\t\t-" + cat)
+    print("\033[93m" + "\tAGD: " + "\033[0m")
     for cat in AGD_url_dict:
-        print "\t\t-" + cat
-    print "\033[93m" + "\tAGD do zabudowy: " + "\033[0m"
+        print("\t\t-" + cat)
+    print("\033[93m" + "\tAGD do zabudowy: " + "\033[0m")
     for cat in AGD_zabudowa_url_dict:
-        print "\t\t-" + cat
-    print "\033[93m" + "\tAGD Małe: " + "\033[0m"
+        print("\t\t-" + cat)
+    print("\033[93m" + "\tAGD Małe: " + "\033[0m")
     for cat in AGD_male_url_dict:
-        print "\t\t-" + cat
-    print "\033[93m" + "\tKomputery: " + "\033[0m"
+        print("\t\t-" + cat)
+    print("\033[93m" + "\tKomputery: " + "\033[0m")
     for cat in Komputery_url_dict:
-        print "\t\t-" + cat
-    print "\033[93m" + "\tGry i konsole: " + "\033[0m"
+        print("\t\t-" + cat)
+    print("\033[93m" + "\tGry i konsole: " + "\033[0m")
     for cat in Gry_i_konsole_url_dict:
-        print "\t\t-" + cat
-    print "\033[93m" + "\tFoto i kamery: " + "\033[0m"
+        print("\t\t-" + cat)
+    print("\033[93m" + "\tFoto i kamery: " + "\033[0m")
     for cat in Foto_i_kamery_url_dict:
-        print "\t\t-" + cat
-    print "\033[93m" + "\tTelefony i GPS: " + "\033[0m"
+        print("\t\t-" + cat)
+    print("\033[93m" + "\tTelefony i GPS: " + "\033[0m")
     for cat in Telefony_i_GPS_url_dict:
-        print "\t\t-" + cat
+        print("\t\t-" + cat)
 
 
 def saveresults_spis(pages, cat, sync):
@@ -194,7 +201,8 @@ def saveresults_spis(pages, cat, sync):
     lista_prod = [x.encode('utf-8') for x in prod_temp]
     lista_cen = [x.encode('utf-8') for x in ceny_temp]
 
-    spisik = xlwt.Workbook(encoding="utf-8")
+    # zapisywanie przy użyciu xlwt
+    '''spisik = xlwt.Workbook(encoding="utf-8")
     sheet = spisik.add_sheet("Spis konkurencji")
     sheet.write(0, 0, "Produkt")
     sheet.write(0, 1, "Cena")
@@ -211,7 +219,52 @@ def saveresults_spis(pages, cat, sync):
         j += 1
         sheet.write(j, 1, cena)
 
-    spisik.save("Spisik.xls")
+    spisik.save("Spisik.xls")'''
+
+    # zapisywanie przy użyciu openpyxl
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+
+    ws.cell(row=1, column=1, value='Produkt')
+    ws.cell(row=1, column=2, value='Cena')
+
+    i = 3
+
+    for prod in lista_prod:
+        ws.cell(row=i, column=1, value=prod)
+        i += 1
+
+    j = 3
+
+    for cena in lista_cen:
+        ws.cell(row=j, column=2, value=cena)
+        j += 1
+
+    wb.save("Spisik.xlsx")
+
+
+def spiscomparison():
+
+    wb1 = openpyxl.load_workbook(filename='Spis konkurencji.xlsx')
+
+    wb2 = openpyxl.load_workbook(filename='Spisik.xlsx')
+
+    ws = wb1.get_sheet_by_name('Sheet1')
+
+    spisik = wb2.get_sheet_by_name('Sheet1')
+
+    for row in ws.iter_rows(min_row=1, max_row=ws.max_row, min_col=1):
+        for cell in row:
+            if cell.value in compdict:
+                for wiersz in spisik.iter_rows(min_row=1, max_row=spisik.max_row, min_col=1):
+                    for komorka in wiersz:
+                        if komorka.value == compdict[cell.value]:
+                            cena = spisik.cell(row=komorka.row, column=2)
+                            ws.cell(row=cell.row, column=2, value=cena.value)
+
+    wb1.save('Spis konkurencji.xlsx')
+    wb2.close()
 
 
 def saveresults_dg3():
@@ -224,11 +277,11 @@ def spis():
 
     czas_start = time.time()
 
-    print "\nSpis konkurencji\n"
+    print("\nSpis konkurencji\n")
     printcat()
 
     while True:
-        ans = raw_input("Naciśnij ENTER aby spisać kategorię; Wpisz 'exit' aby zakończyć:  \n")
+        ans = input("Naciśnij ENTER aby spisać kategorię; Wpisz 'exit' aby zakończyć:  \n")
         if ans == 'exit':
             break
         else:
@@ -239,7 +292,7 @@ def spis():
 
     czas_end = time.time()
     czas_wykonania = czas_end - czas_start
-    print "Czas wykonania: " + str(czas_wykonania)
+    print("Czas wykonania: " + str(czas_wykonania))
 
 
 def degjetrzy():
@@ -248,19 +301,60 @@ def degjetrzy():
 
 
 if __name__ == "__main__":
-    kat = kategoria()
-    parametry_produktow(1, kat)
-    sy = param_synchro(kat)
-    print sy
+
+    spis()
+
+    # wykonanie pełnego spisu RTVEuroAGD, bez synchronizacji cen
+    '''czas1 = time.time()
+
+    fulldict = {}
+
+    for d in [RTV_url_dict, AGD_url_dict, AGD_zabudowa_url_dict, AGD_male_url_dict, Komputery_url_dict,
+    Gry_i_konsole_url_dict, Foto_i_kamery_url_dict, Telefony_i_GPS_url_dict]:
+        fulldict.update(d)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+
+    wiersz1, wiersz2 = 1, 1
+
+    for kat in fulldict:
+        kategoria = fulldict[kat]
+        synchro = pricesynchro(kategoria)
+        strony = get_max_pages(kategoria)
+        nazwy_produktow(strony, kategoria)
+        ceny_produktow(strony, kategoria, synchro)
+        lista_prod = [x.encode('utf-8') for x in prod_temp]
+        lista_cen = [x.encode('utf-8') for x in ceny_temp]
+
+        for prod in lista_prod:
+            ws.cell(row=wiersz1, column=1, value=prod)
+            wiersz1 += 1
+
+        for cena in lista_cen:
+            ws.cell(row=wiersz2, column=2, value=cena)
+            wiersz2 += 1
+
+        prod_temp = []
+        ceny_temp = []
+
+    wb.save('spistest.xlsx')
+
+    czas2 = time.time()
+
+    finaltime = czas2 - czas1
+
+    print finaltime'''
+
+    # kat = kategoria()
+    # parametry_produktow(1, kat)
+    # sy = param_synchro(kat)
+    # print sy
 
     # lista_par = [x.encode('utf-8') for x in param_temp]
     # chunks = [lista_par[x:x + 5] for x in xrange(0, len(lista_par), 5)]
 
-    # wb = openpyxl.load_workbook('DG3.xlsx')
+    # wb = openpyxl.load_workbook('DG3formatka.xlsx')
     # sheet = wb.get_sheet_by_name('Spis')
     # sheet['B50'] = 'txesty'
     # wb.save('DG3.xlsx')
-
-    # działa zapisywanie zostało !!!pobieranie parametrów!!!!!!synchro!!! i zapis ich do excela wraz z nazwą i ceną
-
-    # pobranie cen do DG3 zrobić ze spisu konkurencji
