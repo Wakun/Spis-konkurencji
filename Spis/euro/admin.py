@@ -7,11 +7,9 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'icon')
     prepopulated_fields = {'slug': ('name',)}
 
+class EuroAuchanNamesAdmin(admin.ModelAdmin):
 
-class NewsAdmin(admin.ModelAdmin):
-    list_display = ('title', 'posted_date')
-    prepopulated_fields = {'slug': ('title',)}
-
+    fields = ['euro_name', 'auchan_name', 'pol_num']
 
 admin.site.register(Category, CategoryAdmin)
-admin.site.register(News, NewsAdmin)
+admin.site.register(EuroAuchanNames, EuroAuchanNamesAdmin)

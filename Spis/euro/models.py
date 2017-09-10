@@ -17,16 +17,15 @@ class Category(models.Model):
         return self.name
 
 
-class News(models.Model):
-    title = models.CharField('Tytuł', max_length=255)
-    slug = models.SlugField('Odnośnik', max_length=255, unique=True)
-    text = models.TextField(verbose_name='Treść')
-    categories = models.ManyToManyField(Category, verbose_name='Kategorie')
-    posted_date = models.DateTimeField('Data dodania', auto_now_add=True)
+class EuroAuchanNames(models.Model):
+
+    euro_name = models.CharField('Nazwa Euro: ', max_length=100)
+    auchan_name = models.CharField('Nazwa Auchan: ', max_length=100)
+    pol_num = models.CharField('Numer POL: ', max_length=10, default='POL0000000')
 
     class Meta:
-        verbose_name = "Wiadomość"
-        verbose_name_plural = "Wiadomości"
+        verbose_name = 'Nazwa produktu'
+        verbose_name_plural = 'Nazwy produktów'
 
-    def __unicode__(self):
-        return self.title
+    def __str__(self):
+        return self.euro_name + self.auchan_name
